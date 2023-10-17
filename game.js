@@ -1,14 +1,15 @@
 var level = 0;
-
-startOver();
-
 var gamePattern = [];
 var count = 0;
 var buttonColors = ["green", "red", "yellow", "blue"];
 var userClickedPattern = [];
+var isOver = false;
+
+$(document).on("keypress", startOver);
 
 function nextSequence() {
-  $(document).off();
+  $(document).off("keypress");
+  console.log("nextSequence called.");
 
   userClickedPattern = [];
   count = 0;
@@ -18,34 +19,47 @@ function nextSequence() {
   fadingAnimation(randomChosenColor);
   playColorSound(randomChosenColor);
   level++;
+  console.log("level in nextSequence: " + level);
   $("h1").text("Level " + level);
 }
 
 function checkAnswer(currentLevel) {
-  if (count === level) setTimeout(nextSequence, 1000);
-
-  for (var i = 0; i < count; i++)
+  for (var i = 0; i < count; i++) {
+    console.log("value of count and i: " + count + ", " + i);
     if (userClickedPattern[i] !== gamePattern[i]) gameOver();
+  }
+
+  if (count === level && !isOver) {
+    console.log("count and level: " + count + ", " + level);
+    setTimeout(nextSequence, 1000);
+  }
 }
 
 function gameOver() {
   $("h1").text("Game Over, Press Any Key to Restart");
-
-  var audio = new Audio("./sounds/wrong.mp3");
-  audio.play();
-
+  count = 0;
+ 
   $("body").addClass("game-over");
+
   setTimeout(function () {
+    var audio = new Audio("./sounds/wrong.mp3");
+    audio.play();
     $("body").removeClass("game-over");
   }, 200);
 
-  startOver();
+  isOver = true;
+  console.log("before startOver inside gameOver.");
+
+  $(document).on("keypress", startOver);
 }
 
 function startOver() {
+  console.log("startover called");
   level = 0;
   gamePattern = [];
-  $(document).keypress(nextSequence);
+  isOver = false;
+  console.log("level in startOver: " + level);
+  nextSequence();
 }
 
 $("div .btn").click(function (e) {
